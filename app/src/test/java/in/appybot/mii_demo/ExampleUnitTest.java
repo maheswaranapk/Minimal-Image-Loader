@@ -1,4 +1,4 @@
-package in.appybot.minimal_image_loader;
+package in.appybot.mii_demo;
 
 import org.junit.Test;
 

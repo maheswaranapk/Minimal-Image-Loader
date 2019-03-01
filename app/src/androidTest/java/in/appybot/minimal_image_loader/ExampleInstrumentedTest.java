@@ -1,4 +1,4 @@
-package in.appybot.minimal_image_loader;
+package in.appybot.mii_demo;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("in.appybot.minimal_image_loader", appContext.getPackageName());
+        assertEquals("in.appybot.mii_demo", appContext.getPackageName());
     }
 }
