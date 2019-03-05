@@ -11,18 +11,16 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import android.view.LayoutInflater
-import android.widget.Toast
 import android.widget.ToggleButton
 
 
 class MainActivity : AppCompatActivity() {
 
-    var recyclerView: RecyclerView? = null
-    var toggleButton: ToggleButton? = null;
+    private var recyclerView: RecyclerView? = null
+    private var toggleButton: ToggleButton? = null
 
-    val imageList = arrayListOf(
+    private val imageList = arrayListOf(
             "https://images.pexels.com/photos/1722183/pexels-photo-1722183.jpeg?dl&fit=crop&crop=entropy&w=1280&h=1920",
             "https://images.pexels.com/photos/1667580/pexels-photo-1667580.jpeg?dl&fit=crop&crop=entropy&w=1280&h=1920",
             "https://images.pexels.com/photos/1470405/pexels-photo-1470405.jpeg?dl&fit=crop&crop=entropy&w=1280&h=853",
@@ -41,11 +39,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        recyclerView = findViewById<RecyclerView>(R.id.recyclerView);
-        toggleButton = findViewById<ToggleButton>(R.id.toggleButton);
+        recyclerView = findViewById(R.id.recyclerView)
+        toggleButton = findViewById(R.id.toggleButton)
 
         recyclerView?.layoutManager = LinearLayoutManager(this)
-        recyclerView?.adapter = ImageAdapter(imageList, this);
+        recyclerView?.adapter = ImageAdapter(imageList, this)
 
         toggleButton?.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -58,13 +56,13 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    class ImageAdapter(val items: ArrayList<String>, val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+    class ImageAdapter(private val items: ArrayList<String>, private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             return ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_layout, parent, false))
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            ImageLoader.with(context).load(holder?.imageView, items[position]);
+            ImageLoader.with(context).load(holder.imageView, items[position])
         }
 
         override fun getItemCount(): Int {

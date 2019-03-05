@@ -16,10 +16,10 @@ object Utils {
     // Thread Factory to set Thread priority to Background
     internal class ImageThreadFactory : ThreadFactory {
         override fun newThread(runnable: Runnable): Thread {
-            val t = Thread(runnable)
-            t.name = "ImageLoader Thread"
-            t.priority = Process.THREAD_PRIORITY_BACKGROUND
-            return t
+            return Thread(runnable).apply {
+                name = "ImageLoader Thread"
+                priority = Process.THREAD_PRIORITY_BACKGROUND
+            }
         }
     }
 

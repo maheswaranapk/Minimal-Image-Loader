@@ -12,7 +12,7 @@ import java.util.concurrent.Executors
 
 class ImageLoader (context: Context)  {
 
-    private val maxCacheSize: Int = 5 * 1024 * 1024
+    private val maxCacheSize: Int = (Runtime.getRuntime().maxMemory() / 1024).toInt()/8
     private val memoryCache: LruCache<String, Bitmap>
 
     private val executorService: ExecutorService
@@ -21,11 +21,17 @@ class ImageLoader (context: Context)  {
     private val handler: Handler
 
     init {
-        memoryCache = LruCache(maxCacheSize)
+        memoryCache = object : LruCache<String, Bitmap>(maxCacheSize) {
+            override fun sizeOf(key: String, bitmap: Bitmap): Int {
+                // The cache size will be measured in kilobytes rather than number of items.
+                return bitmap.byteCount / 1024
+            }
+        }
+
         executorService = Executors.newFixedThreadPool(5, Utils.ImageThreadFactory())
         handler = Handler()
 
-        val metrics = context.getResources().getDisplayMetrics()
+        val metrics = context.resources.displayMetrics
         screenWidth = metrics.widthPixels
         screenHeight = metrics.heightPixels
     }
@@ -57,14 +63,14 @@ class ImageLoader (context: Context)  {
             "ImageLoader:load - ImageView should not be null."
         }
 
-        require(imageUrl != null && imageUrl.length > 0) {
+        require(imageUrl != null && imageUrl.isNotEmpty()) {
             "ImageLoader:load - Image Url should not be empty"
         }
 
-        imageView.setImageResource(0);
-        imageViewMap.put(imageView, imageUrl)
+        imageView.setImageResource(0)
+        imageViewMap[imageView] = imageUrl
 
-        var bitmap = checkImageInCache(imageUrl)
+        val bitmap = checkImageInCache(imageUrl)
         bitmap?.let {
             loadImageIntoImageView(imageView, it, imageUrl)
         } ?: run {
@@ -82,19 +88,19 @@ class ImageLoader (context: Context)  {
         val scaledBitmap = Utils.scaleBitmapForLoad(bitmap, imageView.width, imageView.height)
 
         scaledBitmap?.let {
-            if(!isImageViewReused(ImageRequest(imageUrl, imageView))) imageView?.setImageBitmap(scaledBitmap)
+            if(!isImageViewReused(ImageRequest(imageUrl, imageView))) imageView.setImageBitmap(scaledBitmap)
         }
     }
 
     private fun isImageViewReused(imageRequest: ImageRequest): Boolean {
-        val tag = imageViewMap.get(imageRequest.imageView)
+        val tag = imageViewMap[imageRequest.imageView]
         return tag == null || tag != imageRequest.imgUrl
     }
 
     @Synchronized
     private fun checkImageInCache(imageUrl: String): Bitmap? = memoryCache.get(imageUrl)
 
-    inner class DisplayBitmap(var imageRequest: ImageRequest) : Runnable {
+    inner class DisplayBitmap(private var imageRequest: ImageRequest) : Runnable {
         override fun run() {
             if(!isImageViewReused(imageRequest)) loadImageIntoImageView(imageRequest.imageView, checkImageInCache(imageRequest.imgUrl), imageRequest.imgUrl)
         }
@@ -102,7 +108,7 @@ class ImageLoader (context: Context)  {
 
     inner class ImageRequest(var imgUrl: String, var imageView: ImageView)
 
-    inner class PhotosLoader(var imageRequest: ImageRequest) : Runnable {
+    inner class PhotosLoader(private var imageRequest: ImageRequest) : Runnable {
 
         override fun run() {
 
