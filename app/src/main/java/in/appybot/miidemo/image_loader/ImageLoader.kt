@@ -34,6 +34,8 @@ class ImageLoader (context: Context)  {
         val metrics = context.resources.displayMetrics
         screenWidth = metrics.widthPixels
         screenHeight = metrics.heightPixels
+
+
     }
 
     companion object {
